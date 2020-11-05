@@ -18,13 +18,14 @@
     img = randn((N, N))
     conv_test(psf, img, img, [1,2], "Convolution random image with delta peak")
 
+
     N = 5
     psf = abs.(randn((N, N, 2)))
     img = randn((N, N, 2))
     dims = [1, 2]
     img_out = conv_psf(img, psf, dims)
     conv_test(psf, img, img_out, dims, "Convolution with random 3D PSF and random 3D image over 2D dimensions")
-
+ 
     N = 5
     psf = abs.(randn((N, N, N, N, N)))
     img = randn((N, N, N, N, N))
@@ -47,8 +48,8 @@
     function conv_test_complex(psf, img, img_out, dims, s)
         otf = fft(psf, dims)
         @testset "$s" begin
-            @test img_out ≈ conv_psf(img, psf, dims, real_res=false)
-            @test img_out ≈ conv_otf(img, otf, dims, real_res=false)
+            @test img_out ≈ conv(img, psf, dims, real_res=false)
+            @test img_out ≈ conv_v_ft(img, otf, dims, real_res=false)
         end
     end
 
@@ -60,7 +61,7 @@
     img = randn((N, N, N, N, N))
     img = img .+ exp.(1im .* img)
     dims = [1, 2, 3, 4]
-    img_out = conv_psf(img, psf, dims, real_res=false)
+    img_out = conv(img, psf, dims, real_res=false)
     conv_test_complex(psf, img, img, dims, "Complex Convolution with 5D delta peak and random 5D image over 4 Dimensions")
 
     N = 5
@@ -75,7 +76,7 @@
     img = randn((N, N, 2))
     img = img .+ exp.(1im .* img)
     dims = [1, 2]
-    img_out = conv_psf(img, psf, dims, real_res=false)
+    img_out = conv(img, psf, dims, real_res=false)
     conv_test_complex(psf, img, img_out, dims, "Complex Convolution with random 3D PSF and random 3D image over 2D dimensions")
 
     N = 5
@@ -83,10 +84,38 @@
     img = randn((N, N, N, N, N))
     img = img .+ exp.(1im .* img)
     dims = [1, 2, 3, 4]
-    img_out = conv_psf(img, psf, dims, real_res=false)
+    img_out = conv(img, psf, dims, real_res=false)
     conv_test_complex(psf, img, img_out, dims, "Complex Convolution with random 5D PSF and random 5D image over 4 Dimensions")
 
 
 
+    @testset "dims argument nothing" begin
+        N = 5
+        psf = abs.(randn((N, N, N, N, N)))
+        img = randn((N, N, N, N, N))
+        dims = [1,2,3,4,5] 
+        @test conv(psf, img) ≈ conv(psf, img, dims)
+        @test conv_v_ft(img, fft(psf, dims)) ≈ conv_v_ft(img, fft(psf, dims), dims)
+    end
+
+    @testset "Test shift argument" begin
+        N = 10
+        img = randn((N, N))
+        psf = abs.(randn((N, N)))
+        
+        @test conv(img, psf, shift=true) ≈ conv(img, ifftshift(psf))
+        @test conv_psf(img, psf, shift=true) ≈ conv(img, ifftshift(psf))
+        @test conv_psf(img, psf, shift=true) ≈ conv(img, ifftshift(psf))
+    end
+
+    @testset "Check types" begin
+        N = 10
+        img = randn((N, N))
+        psf = abs.(randn((N, N)))
+        
+        @test conv_psf(img, psf, shift=true) ≈ conv(img, ifftshift(psf))
+        @test typeof(conv_psf(img, psf, shift=true)) != typeof(conv(img, ifftshift(psf)))
+        @test typeof(conv_psf(img, psf, shift=true)) == typeof(conv(img, ifftshift(psf), real_res=true))
+    end
 end
 

@@ -1,36 +1,189 @@
+# this part includes useful convolution methods in PhysicalOptics 
+
+
+export conv_v_ft, conv
 export conv_psf, conv_otf, conv_otf_r, plan_conv_r
 
-"""
-    conv_psf(obj, psf [, dims]; real_res=true)
-Convolve `obj` with `psf` over `dims` dimensions.
-Based on FFT convolution.
-This function calls `conv_otf`, check the help of this method.
+
 
 """
-function conv_psf(obj, psf, dims=[1, 2]; real_res=true)
-    return conv_otf(obj, fft(psf, dims), dims, real_res=real_res)
+    conv_v_ft(u, v_ft[, dims]; real_res=false)
+Convolve `u` with `v_ft` over `dims` dimensions.
+Based on FFT convolution.
+
+# Arguments
+* `u` is an array in real space.
+* `v_ft` is the array to be convolved with in Fourier space. 
+    Therefore you have to check yourself that `v` was shifted correctly
+    in real space.
+* Per default `dims=nothing` means that we perform the convolution 
+    over all dimensions of `v_ft`. 
+    If `dims` is an array with integers, we perform convolution 
+    only over these dimensions. Eg. `dims=[1,3]` would perform the convolution
+    over the first and third dimension. Second dimension is not convolved.
+* Per default `real_res=false` means that the output will be real. Otherwise we cut
+    off the imaginary part.
+
+
+# Examples
+Convolution with delta peak is an identity operation
+```jldoctest
+julia> u = [1 2 3 4 5]
+1×5 Array{Int64,2}:
+ 1  2  3  4  5
+
+julia> v = [1 0 0 0 0]
+1×5 Array{Int64,2}:
+ 1  0  0  0  0
+
+julia> v_ft = fft(v)
+1×5 Array{Complex{Float64},2}:
+ 1.0+0.0im  1.0+0.0im  1.0+0.0im  1.0+0.0im  1.0+0.0im
+
+julia> conv_v_ft(u, v_ft)
+1×5 Array{Complex{Float64},2}:
+ 1.0+0.0im  2.0+0.0im  3.0+0.0im  4.0+0.0im  5.0+0.0im
+
+julia> conv_v_ft(u, v_ft, real_res=true)
+1×5 Array{Float64,2}:
+ 1.0  2.0  3.0  4.0  5.0
+```
+"""
+function conv_v_ft(u, v_ft, dims=nothing; real_res=false)
+    # get the dimensions of the convolution
+    if dims == nothing
+        dims = collect(1:ndims(v_ft))
+    end
+    res = ifft(fft(u, dims) .* v_ft, dims)
+    if real_res 
+        return real(res)
+    else
+        return res
+    end
 end
 
 
 """
-    conv_otf(obj, otf [ , dims]; real_res=true)
-Performs a FFT-based convolution of an `obj`
-with an `otf`. `otf = fft(psf)`. The 0 frequency of the `otf` must be located
-at the first entry.
-The `obj` can be of arbitrary dimension but `ndims(obj) ≥ ndims(otf)`.
-The convolution happens over the `dims` array. Any further dimensions 
-are broadcasted.
-Per default `dims = [1, 2]`.
-Default `real_res=true` means that the output will be real.
-That is useful once `obj` and `psf` are real and therefore mathematically the result 
-would be as well.
+    conv(u, v[, dims]; shift=false, real_res=false)
+Convolve `u` with `v` over `dims` dimensions.
+
+# Arguments
+ 
+* `u` is an array in real space.
+* `v` is the array to be convolved.
+* Per default `dims=nothing` means that we perform the convolution 
+    over all dimensions of `v`. 
+    If `dims` is an array with integers, we perform convolution 
+    only over these dimensions. Eg. `dims=[1,3]` would perform the convolution
+    over the first and third dimension. Second dimension is not convolved.
+* Per default `shift=false` therefore we assume that the center point of `v`
+    is alreay ifftshifted to the first entry of the array.
+* Per default `real_res=false` means that the output will be real. Otherwise we cut
+    off the imaginary part.
+
+ # Examples
+1D with FFT over all dimensions. We choose `v` to be a delta peak.
+Therefore convolution should act as identity.
+```@jldoctest
+julia> u = [1 2 3 4 5]
+1×5 Array{Int64,2}:
+ 1  2  3  4  5
+
+julia> v = [0 0 1 0 0]
+1×5 Array{Int64,2}:
+ 0  0  1  0  0
+
+julia> conv(u, v)
+1×5 Array{Complex{Float64},2}:
+ 4.0+0.0im  5.0+0.0im  1.0+0.0im  2.0+0.0im  3.0+0.0im
+
+julia> conv(u, v, real_res=true) # since v is not ifftshifted with peak at the first entry, we see a wrong result.
+1×5 Array{Float64,2}:
+ 4.0  5.0  1.0  2.0  3.0
+
+julia> conv(u, v, shift=true, real_res=true)
+1×5 Array{Float64,2}:
+ 1.0  2.0  3.0  4.0  5.0
+
+julia> conv(u, ifftshift(v), real_res=true)
+1×5 Array{Float64,2}:
+ 1.0  2.0  3.0  4.0  5.0
+```
+2D with FFT with different `dims` arguments.
+```@jldoctest
+julia> u = [1 2 3; 4 5 6]
+2×3 Array{Int64,2}:
+ 1  2  3
+ 4  5  6
+
+julia> v = [1 0 0; 1 0 0]
+2×3 Array{Int64,2}:
+ 1  0  0
+ 1  0  0
+
+julia> conv(u, v, [2])
+2×3 Array{Complex{Float64},2}:
+ 1.0+0.0im  2.0+0.0im  3.0+0.0im
+ 4.0+0.0im  5.0+0.0im  6.0+0.0im
+
+julia> conv(u, v, [2], real_res=true)
+2×3 Array{Float64,2}:
+ 1.0  2.0  3.0
+ 4.0  5.0  6.0
+
+julia> conv(u, v, [1, 2], real_res=true) # now we do a 2D convolution which is not identity anymore
+2×3 Array{Float64,2}:
+ 5.0  7.0  9.0
+ 5.0  7.0  9.0
+
+julia> conv(u, v, real_res=true) # same statement as above
+2×3 Array{Float64,2}:
+ 5.0  7.0  9.0
+ 5.0  7.0  9.0
+```
 """
-function conv_otf(obj, otf, dims=[1, 2]; real_res=true)
-    res = ifft(fft(obj, dims) .* otf, dims)
-    if real_res
-        return real(res)
+function conv(u, v, dims=nothing; shift=false, real_res=false)
+    # get the dimensions of the convolution
+    if dims == nothing
+        dims = collect(1:ndims(v))
     end
-    return res
+    # this means that we must shift the center pixel of v in real space
+    # to the first entry. Simply apply ifftshift on v 
+    if shift
+        v_ft = fft(ifftshift(v), dims)
+    else
+        v_ft = fft(v, dims)
+    end
+    
+    # hand over to second function
+    return conv_v_ft(u, v_ft, dims, real_res=real_res)
+end
+
+
+
+
+
+"""
+    conv_psf(obj, psf [, dims]; shift=false)
+Convolve `obj` with `psf` over `dims` dimensions.
+Based on FFT convolution. 
+This function calls `conv`, check the help of this method.
+Wrapper for `conv(obj, psf, dims, shift=shift, real_res=true)`
+"""
+function conv_psf(obj, psf, dims=nothing; shift=false)
+    return conv(obj, psf, dims, shift=shift, real_res=true)
+end
+
+
+
+"""
+    conv_otf(obj, otf [ , dims])
+Performs a FFT-based convolution of an `obj` with `otf`.
+Wrapper for `conv_v_ft(obj, otf, dims, real_res=true)`.
+Check the help of `conv_v_ft` for more details and examples.
+"""
+function conv_otf(obj, otf, dims=nothing)
+    return conv_v_ft(obj, otf, dims, real_res=true)
 end
 
 
