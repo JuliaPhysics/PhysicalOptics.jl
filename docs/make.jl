@@ -2,8 +2,8 @@ using Documenter, PhysicalOptics
 
 
 
-DocMeta.setdocmeta!(DeconvOptim, :DocTestSetup, :(using DeconvOptim); recursive=true)
-makedocs(cite_bib, modules=[DeconvOptim],
+DocMeta.setdocmeta!(PhysicalOptics, :DocTestSetup, :(using PhysicalOptics); recursive=true)
+makedocs(modules=[PhysicalOptics],
          sitename="PhysicalOptics.jl",
          doctest = false,
          pages = Any[
