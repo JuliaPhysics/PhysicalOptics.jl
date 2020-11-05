@@ -12,4 +12,4 @@ makedocs(modules=[PhysicalOptics],
         )
          
 
-deploydocs(repo = "github.com/JuliaPhysics/PhysicalOptics.jl.git")
+deploydocs(repo = "github.com/JuliaPhysics/PhysicalOptics.jl.git", devbranch="main")

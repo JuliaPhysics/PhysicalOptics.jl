@@ -1,7 +1,7 @@
 export conv_psf, conv_otf, conv_otf_r, plan_conv_r
 
 """
-    conv_psf(obj, psf [, dims]; mode=true)
+    conv_psf(obj, psf [, dims]; real_res=true)
 Convolve `obj` with `psf` over `dims` dimensions.
 Based on FFT convolution.
 This function calls `conv_otf`, check the help of this method.
@@ -16,7 +16,7 @@ end
     conv_otf(obj, otf [ , dims]; real_res=true)
 Performs a FFT-based convolution of an `obj`
 with an `otf`. `otf = fft(psf)`. The 0 frequency of the `otf` must be located
-at position [1, 1, 1].
+at the first entry.
 The `obj` can be of arbitrary dimension but `ndims(obj) ≥ ndims(otf)`.
 The convolution happens over the `dims` array. Any further dimensions 
 are broadcasted.
@@ -35,7 +35,7 @@ end
 
 
 """
-    conv_otf_r(obj, otf [, dims; real_res=true])
+    conv_otf_r(obj, otf [, dims])
 Performs a FFT-based convolution of an `obj`
 with an `otf`.
 Same arguments as `conv_otf` but with `obj` being real and `otf=rfft(psf)`.
@@ -49,10 +49,7 @@ function conv_otf_r(obj, otf, dims=[1, 2]; real_res=true)
     # therefore we use dims[1] to find out the output size
     out_size = size(obj)[dims[1]]
     res = irfft(res_fft, out_size, dims)
-    if real_res
-        return real(res)
-    end
-    return res
+    return real(res)
 end
 
 
