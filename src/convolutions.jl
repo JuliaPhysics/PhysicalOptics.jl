@@ -57,7 +57,7 @@ end
 
 
 """
-    plan_conv_r(psf [, dims]; real_res=true)
+    plan_conv_r(psf [, dims])
 Pre-plan an optimized convolution for array shaped like `psf` (based on pre-plan FFT)
 along the given dimenions `dims`.
 `dims = [1, 2]` per default.
@@ -67,7 +67,7 @@ The second return is the convolution function `conv`.
 `conv` itself has two arguments. `conv(obj, otf)` where `obj` is the object and `otf` the otf.
 This function achieves faster convolution than `conv_psf(obj, psf)`.
 """
-function plan_conv_r(psf, dims=[1, 2]; real_res=true)
+function plan_conv_r(psf, dims=[1, 2])
     # do the preplanning step
     P = plan_rfft(psf, dims)
     otf = P * psf 
@@ -76,11 +76,7 @@ function plan_conv_r(psf, dims=[1, 2]; real_res=true)
     # construct the efficient conv function
     # P and P_inv can be understood like matrices
     # but their computation is fast
-    if real_res
-        conv(obj, otf) = real.(P_inv * ((P * obj) .* otf))
-    else
-        conv(obj, otf) = P_inv * ((P * obj) .* otf)
-    end
+    conv(obj, otf) = real.(P_inv * ((P * obj) .* otf))
     return otf, conv
 end
 
