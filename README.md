@@ -10,7 +10,7 @@ A package for simulation of physical optics. Physical optics is more general tha
 
 
 
-[docs-dev-img]: https://img.shields.io/badge/docs-stable-orange.svg 
+[docs-dev-img]: https://img.shields.io/badge/docs-dev-orange.svg 
 [docs-dev-url]: https://juliaphysics.github.io/PhysicalOptics.jl/dev/ 
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg 
