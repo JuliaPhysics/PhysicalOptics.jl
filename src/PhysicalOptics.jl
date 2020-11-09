@@ -12,8 +12,6 @@ include("utils.jl")
  # utils to view conveniently images
 include("utils_view.jl")
 
- # coherent field propagations
-include("propagations.jl")
 
 include("psf.jl")
 
