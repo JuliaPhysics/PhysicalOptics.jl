@@ -7,3 +7,11 @@ using Random
 Random.seed!(42)
 
 include("convolutions.jl")
+
+
+include("utils.jl")
+
+include("psf.jl")
+
+
+include("resolution_equations.jl")
