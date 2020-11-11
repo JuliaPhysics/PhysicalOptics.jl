@@ -13,5 +13,10 @@ include("utils.jl")
 
 include("psf.jl")
 
+include("physical_conversions.jl")
 
 include("resolution_equations.jl")
+
+include("propagations.jl")
+
+include("utils_view.jl")
