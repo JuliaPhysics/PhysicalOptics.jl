@@ -1,5 +1,5 @@
 export center_extract, center_set!, get_indices_around_center, center_pos
-export rr_2D, rr_3D
+export rr, rr_3D
 export jinc
 
 
@@ -130,7 +130,7 @@ function rr_3D(s)
 end
 
 """
-    rr_2D(s; norm=true)
+    rr(s; norm=false)
 
 Generate a image with values being the distance to the center pixel.
 `s` specifies the output size of the 2D array.
@@ -138,7 +138,7 @@ Generate a image with values being the distance to the center pixel.
 
 # Examples
 ```julia-repl
-julia> rr_2D((6, 6))
+julia> rr((6, 6))
 6×6 Array{Float64,2}:
  4.24264  3.60555  3.16228  3.0  3.16228  3.60555
  3.60555  2.82843  2.23607  2.0  2.23607  2.82843
@@ -147,7 +147,7 @@ julia> rr_2D((6, 6))
  3.16228  2.23607  1.41421  1.0  1.41421  2.23607
  3.60555  2.82843  2.23607  2.0  2.23607  2.82843
 
-julia> rr_2D((4,4), norm=true)
+julia> rr((4,4), norm=true)
 4×4 Array{Float64,2}:
  1.41421  1.11803   1.0  1.11803
  1.11803  0.707107  0.5  0.707107
@@ -155,7 +155,7 @@ julia> rr_2D((4,4), norm=true)
  1.11803  0.707107  0.5  0.707107
 ```
 """
-function rr_2D(s; norm=false)
+function rr(s; norm=false)
     rarr = zeros((s...)) 
     for j = 1:s[2]
         for i = 1:s[1]
