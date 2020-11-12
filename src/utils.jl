@@ -1,7 +1,44 @@
 export center_extract, center_set!, get_indices_around_center, center_pos
 export rr, rr_3D
 export jinc
+export fftpos
 
+
+"""
+    fftpos(l, N)
+
+Construct a range from -L/2 to L/2.
+However, we ensure that everything is centered around the center
+in a way that a FFT interpretes it correctly.
+For odd sequences it is indeed in the real center.
+For even sequences the center is at `N/2 + 1`.
+
+ # Examples
+```jldoctest
+julia> collect(fftpos(1, 4))
+4-element Array{Float64,1}:
+ -0.5
+ -0.25
+  0.0
+  0.25
+
+julia> collect(fftpos(1, 5))
+5-element Array{Float64,1}:
+ -0.5
+ -0.25
+  0.0
+  0.25
+  0.5
+```
+"""
+function fftpos(l, N)
+    if N % 2 == 0
+        dx = l / N
+        return range(-l/2, l/2-dx, length=N)
+    else
+        return range(-l/2, l/2, length=N) 
+    end
+end
 
 """
     get_indices_around_center(i_in, i_out)
