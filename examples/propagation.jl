@@ -58,12 +58,6 @@ begin
 	plot!(xs, analytical)
 end
 
-# ╔═╡ b0989266-2439-11eb-16da-e75ada56f4c0
-collect((fftfreq(100, 1)))
-
-# ╔═╡ 343774e2-2440-11eb-0545-374afacad874
-
-
 # ╔═╡ 3425c3a0-2440-11eb-08af-570a0aa4a373
 md"## Diffraction pattern of a square aperture"
 
@@ -101,18 +95,12 @@ begin
 	plot!(x_rect, abs2.(out_recrs[129, :]))
 end
 
-# ╔═╡ a4494ece-2448-11eb-2443-714c62428f9b
-fresnel_kernel([1,2], [1,2],1,1)
-
 # ╔═╡ Cell order:
 # ╠═79d92320-2412-11eb-14a7-b1b5246bbc3c
 # ╟─645e2eac-2433-11eb-0fed-6982080e4951
 # ╠═b0c8db42-2439-11eb-3d9b-b7af3c007f4c
 # ╠═ff9e9bf6-2445-11eb-0ca7-0f84a22d3c02
-# ╠═b0989266-2439-11eb-16da-e75ada56f4c0
-# ╠═343774e2-2440-11eb-0545-374afacad874
 # ╟─3425c3a0-2440-11eb-08af-570a0aa4a373
 # ╠═340e8258-2440-11eb-2390-ffb2a54e889c
 # ╠═c798a162-2444-11eb-1a76-ffe0d355671a
 # ╠═e34619f8-2444-11eb-3ce6-41e9921d4b0a
-# ╠═a4494ece-2448-11eb-2443-714c62428f9b
