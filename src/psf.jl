@@ -42,7 +42,7 @@ end
 
 
 """
-    jinc_psf(psf_size, L, radius[, f]; λ=550e-9)
+    jinc_psf(psf_size, L, radius[, f]; λ=550e-9, shift=false)
 
 Generate the normalized, incoherent 2D jinc PSF of a circular aperture.
 `psf_size` is output array shape. `L` is the width of the array
@@ -53,11 +53,19 @@ length of the lens respectively.
 Reference: Mertz, J. (2019). Introduction to Optical Microscopy (2nd ed.).
 """
 function jinc_psf(psf_size, L, radius, f=100e-3; λ=550e-9, shift=false)
-    # create grid with radial distances
-    rad = rr(psf_size, norm=true) .* L ./ 2
-    κ = 1 / λ
+    κ = calc_κ(λ) 
     Δk⊥ = 2 * κ * radius / f
-    psf = jinc.(π .* Δk⊥ .* rad).^2
+    # create real output psf
+    
+    psf = zeros(Float64, psf_size)
+    # calculate each point
+    for (j, x) in enumerate(fftpos(L, psf_size[2]))
+        for (i, y) in enumerate(fftpos(L, psf_size[1]))
+            r = sqrt(x^2 + y^2)
+            psf[i, j] = jinc(π * Δk⊥ * r).^2
+        end
+    end
+    # shift center to top left corner
     psf = ifftshift(psf)
     return shift_and_norm(psf, shift, true) 
 end
