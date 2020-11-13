@@ -6,17 +6,19 @@ using Random
  # fix seed for reproducibility
 Random.seed!(42)
 
-include("convolutions.jl")
+tests = [
+    "convolutions",
+    "utils",
+    "psf",
+    "apertures",
+    "physical_conversions",
+    "resolution_equations",
+    "propagations",
+    "utils_view"
+]
 
-
-include("utils.jl")
-
-include("psf.jl")
-
-include("physical_conversions.jl")
-
-include("resolution_equations.jl")
-
-include("propagations.jl")
-
-include("utils_view.jl")
+for t in tests
+    @testset "$(t)" begin
+        include("$t.jl")
+    end
+end
