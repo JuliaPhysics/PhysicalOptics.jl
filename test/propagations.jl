@@ -31,3 +31,35 @@
 
     @test ~ ≈(x_1, x_2, rtol=0.01)
 end
+
+
+@testset "Confirm that lens_propagate matches analytical solution with 0.5 percent relative error" begin
+    function lens_test(L, N, f, radius, shift)
+	    E0 = zeros((N, N))
+        # place point source at center
+	    E0[N ÷ 2 + 1, N ÷ 2 + 1] = 1
+	    E1, L1 = lens_propagate(E0, L, f)
+	    E1_ = circ(E1, radius, L1)
+	    E2, L2 = lens_propagate(E1_, L1, f)
+	    psf_ = abs2.(E2)
+	    psf = psf_ ./ sum(psf_)
+
+        psf_analytical = jinc_psf((N, N), L, radius, f; shift=shift)
+        
+
+        # exclude borders, which sometimes cause trouble
+	    psf1 = psf ./ maximum(psf)
+	    psf2 = psf_analytical ./ maximum(psf_analytical)
+        if shift == false
+            psf1 = ifftshift(psf1)
+            slice = 1 : round(Int, 0.5 * N)
+        else
+            slice = round(Int, 0.25 * N) : round(Int, 0.75 * N)
+        end
+	    @test ≈(psf1[slice, slice], psf2[slice, slice], rtol=0.0005)
+    end
+
+    lens_test(10e-3, 2048, 100e-3, 1e-3, true)
+    lens_test(100e-3, 2048, 100e-3, 10e-3, true)
+    lens_test(10e-3, 512, 10e-3, 1e-3, false)
+end
