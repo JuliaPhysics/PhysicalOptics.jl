@@ -7,14 +7,15 @@ using Random
 Random.seed!(42)
 
 tests = [
-    "convolutions",
-    "utils",
-    "psf",
     "apertures",
+    "convolutions",
+    "lenses",
     "physical_conversions",
-    "resolution_equations",
     "propagations",
-    "utils_view"
+    "psf",
+    "resolution_equations",
+    "utils",
+    "utils_view",
 ]
 
 for t in tests

@@ -30,8 +30,8 @@ function lens(f::Number, L::Number, size::Tuple=(512, 512); radius=Inf, λ=550e-
     out = zeros(ComplexF64, size)
 
     # iterate over values
-    for (j, x) in enumerate(fftpos(L, size(arr)[2]))
-        for (i, y) in enumerate(range(L, size(arr)[1]))
+    for (j, x) in enumerate(fftpos(L, size[2]))
+        for (i, y) in enumerate(fftpos(L, size[1]))
             out[i, j] = circ(radius, x, y) * lens(f, x, y; radius=radius, λ=λ, n=n)
         end
     end
