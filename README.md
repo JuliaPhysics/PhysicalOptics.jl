@@ -19,12 +19,15 @@ julia> ] add https://github.com/JuliaPhysics/PhysicalOptics.jl
 * Light propagation with Fresnel and Rayleigh-Sommerfeld (`propagate`) 
 * 2D jinc PSF
 * some conversion methods
+* Light propagation with Fresnel
+* Optical elements like lenses, apertures
+* some optical conversions
 
 ### Wanted
 * Light propagation with Fraunhofer 
-* Optical elements like lenses, apertures, micro lenses
+* micro lenses
 * Focused and defocused PSFs (3D). For example with Debye integral.
-
+* Register adjoints of convolution via ChainRulesCore
 
 ## Literature
 As resources we recommend 
