@@ -1,5 +1,6 @@
 export propagate
 export fresnel_kernel, rs_kernel
+export point_source_propagate
 export lens_propagate
 
 
@@ -55,6 +56,40 @@ function propagate(arr, L, z; kernel=rs_kernel, λ=550e-9, n=1)
 
     return out
 end
+
+"""
+    point_source_propagate(L, size, x0, y0, d; λ=550e-9, n=1)
+
+Propagate a point source in a field of width `L` with array size `size` 
+over a distance `d` in a medium with refractive index `n`.
+Point source is located at position `(x0, y0)` and then propagated over distance
+`d`.
+
+This is based on the analytical solution in real space and not on Fourier
+space propagation. The latter one suffers from artifacts while microscopic large `L`.
+This function should be always preferred for point sources.
+"""
+function point_source_propagate(L, size, x0, y0, d; λ=550e-9, n=1)
+    out = zeros(ComplexF64, size)
+    k = calc_k(λ, n)
+
+    # if we are at the plane of the point source
+    # return numerical delta
+    if iszero(d)
+        out[center_pos(size[1]), center_pos(size[2])] = 1
+        return out
+    end
+    # calculate values
+    for (j, x) in enumerate(fftpos(L, size[2]))
+        for (i, y) in enumerate(fftpos(L, size[1]))
+            r = sqrt((x-x0)^2 + (y-y0)^2 + d^2)
+            out[i, j] = 1/r .* exp(1im * k * r);
+        end
+    end
+    out ./= out[argmax(abs2.(out))]
+    return out
+end
+
 
 
 """
