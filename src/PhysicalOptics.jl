@@ -1,5 +1,6 @@
 module PhysicalOptics
 
+using ChainRulesCore
 using FFTW
 using SpecialFunctions
 
