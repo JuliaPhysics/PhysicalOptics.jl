@@ -43,10 +43,10 @@ end
 """
     get_indices_around_center(i_in, i_out)
 
-A function which provides two output indices i1 and i2
-where i2 - i1 = i_out
-The indices are choosen in a way that the set i1:i2
-cuts the intervall 1:i_in in a way that the center frequency
+A function which provides two output indices `i1` and `i2`
+where `i2 - i1 = i_out`
+The indices are chosen in a way that the set `i1:i2`
+cuts the interval `1:i_in` in a way that the center frequency
 stays at the center position.
 Works for both odd and even indices
 
@@ -89,14 +89,17 @@ julia> center_extract([[1,2] [3, 4]], [1, 1])
 """
 function center_extract(arr, index_arrays)
     index_arrays = collect(index_arrays)
+
+    # we construct two lists
+    # the reason is, that we don't change higher dimensions which are not 
+    # specified in index_arrays
     out_indices1 = [get_indices_around_center(size(arr)[x], index_arrays[x]) 
                     for x = 1:length(index_arrays)]
     
     out_indices1 = [x[1]:x[2] for x = out_indices1]
 
-
-    out_indices2 = map(eval, [1:size(arr)[length(out_indices1) + i] for i = (1 + size(index_arrays)[1]):ndims(arr)])
-    return view(arr, out_indices1..., out_indices2...)
+    out_indices2 = [1:size(arr)[length(out_indices1) + i] for i = (1 + size(index_arrays)[1]):ndims(arr)]
+    return arr[out_indices1..., out_indices2...]
 end
 
 
