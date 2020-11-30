@@ -24,7 +24,6 @@ end
     out[1,1] = 1
 
     # large aperture is roughly a delta
-    @show out ≈ jinc_psf((5, 5), 1, 1)
     out[1,1] = 0
     out[3,3] = 1
     @test out ≈ jinc_psf((5, 5), 1, 1, shift=true)
