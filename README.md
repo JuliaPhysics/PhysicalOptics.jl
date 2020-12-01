@@ -3,8 +3,8 @@ A package for simulation of physical optics. Physical optics is more general tha
 
 | **Documentation**                       | **Build Status**                          | **Code Coverage**               |
 |:---------------------------------------:|:-----------------------------------------:|:-------------------------------:|
-| [![][docs-stable-img]][docs-stable-url] | [![Build Status][travis-img]][travis-url] | [![][coveral-img]][coveral-url] |
-| [![][docs-dev-img]][docs-dev-url]       | [![Build Status][appvey-img]][appvey-url] | [![][codecov-img]][codecov-url] |
+| [![][docs-stable-img]][docs-stable-url] |  | [![][codecov-img]][codecov-url] |
+| [![][docs-dev-img]][docs-dev-url]       |  | |
 
 
 ## Installation
@@ -22,10 +22,10 @@ julia> ] add https://github.com/JuliaPhysics/PhysicalOptics.jl
 * Light propagation with Fresnel
 * Optical elements like lenses, apertures
 * some optical conversions
+* micro lenses
 
 ### Wanted
 * Light propagation with Fraunhofer 
-* micro lenses
 * Focused and defocused PSFs (3D). For example with Debye integral.
 * Register adjoints of convolution via ChainRulesCore
 
@@ -48,15 +48,6 @@ In Julia there is no similar project. However, in Python [POPPY](https://github.
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg 
 [docs-stable-url]: https://juliaphysics.github.io/PhysicalOptics.jl/stable/
-
-[travis-img]: https://api.travis-ci.com/JuliaPhysics/PhysicalOptics.jl.svg?branch=main&status=created 
-[travis-url]: https://travis-ci.com/github/JuliaPhysics/PhysicalOptics.jl
-
-[appvey-img]: https://ci.appveyor.com/api/projects/status/abxnasacbo42jqvc?svg=true 
-[appvey-url]: https://ci.appveyor.com/project/roflmaostc/physicaloptics-jl 
-
-[coveral-img]: https://coveralls.io/repos/github/JuliaPhysics/PhysicalOptics.jl/badge.svg?branch=main
-[coveral-url]: https://coveralls.io/github/JuliaPhysics/PhysicalOptics.jl?branch=main
 
 [codecov-img]: https://codecov.io/gh/JuliaPhysics/PhysicalOptics.jl/branch/main/graph/badge.svg?token=H94RIVDYK4 
 [codecov-url]: https://codecov.io/gh/JuliaPhysics/PhysicalOptics.jl 
