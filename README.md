@@ -3,7 +3,7 @@ A package for simulation of physical optics. Physical optics is more general tha
 
 | **Documentation**                       | **Build Status**                          | **Code Coverage**               |
 |:---------------------------------------:|:-----------------------------------------:|:-------------------------------:|
-| [![][docs-stable-img]][docs-stable-url], [![][docs-dev-img]][docs-dev-url] | ![CI](https://github.com/JuliaPhysics/PhysicalOptics.jl/workflows/CI/badge.svg) | [![][codecov-img]][codecov-url] |
+| [![][docs-stable-img]][docs-stable-url], [![][docs-dev-img]][docs-dev-url] | [![][CI-img]][CI-url] | [![][codecov-img]][codecov-url] |
 
 
 ## Installation
@@ -50,3 +50,6 @@ In Julia there is no similar project. However, in Python [POPPY](https://github.
 
 [codecov-img]: https://codecov.io/gh/JuliaPhysics/PhysicalOptics.jl/branch/main/graph/badge.svg?token=H94RIVDYK4 
 [codecov-url]: https://codecov.io/gh/JuliaPhysics/PhysicalOptics.jl 
+
+[CI-img]: https://github.com/JuliaPhysics/PhysicalOptics.jl/workflows/CI/badge.svg
+[CI-url]: https://github.com/JuliaPhysics/PhysicalOptics.jl/actions?query=workflow%3ACI 
