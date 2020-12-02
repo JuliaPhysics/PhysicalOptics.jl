@@ -24,6 +24,11 @@ end
     @test 3 == center_pos(4)
     @test 3 == center_pos(5)
     @test 513 == center_pos(1024)
+
+    @test PhysicalOptics.get_indices_around_center((5), (2)) == (2, 3)
+    @test PhysicalOptics.get_indices_around_center((5), (3)) == (2, 4)
+    @test PhysicalOptics.get_indices_around_center((4), (3)) == (2, 4)
+    @test PhysicalOptics.get_indices_around_center((4), (2)) == (2, 3)
 end
 
 
