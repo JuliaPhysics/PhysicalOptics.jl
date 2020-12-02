@@ -33,11 +33,11 @@
 end
 
 
-@testset "Confirm that lens_propagate matches analytical solution with 0.5 percent relative error" begin
+@testset "Confirm that lens_propagate, four_f_propagate matches analytical solution with 0.5 percent relative error" begin
     function lens_test(L, N, f, radius, shift)
 	    E0 = zeros((N, N))
         # place point source at center
-	    E0[N ÷ 2 + 1, N ÷ 2 + 1] = 1
+	    E0[center_pos(N), center_pos(N)] = 1
 	    E1, L1 = lens_propagate(E0, L, f)
 	    E1_ = circ(E1, radius, L1)
 	    E2, L2 = lens_propagate(E1_, L1, f)
@@ -47,19 +47,30 @@ end
         psf_analytical = jinc_psf((N, N), L, radius, f; shift=shift)
         
 
+        psf_4f, L2_4f = four_f_propagate(E0, L, f, f, radius/f) 
+        if ~ shift
+            psf_4f = ifftshift(psf_4f)
+        end
+        @test L2 == L2_4f
+
         # exclude borders, which sometimes cause trouble
 	    psf1 = psf ./ maximum(psf)
 	    psf2 = psf_analytical ./ maximum(psf_analytical)
+	    psf_4f = normabs2(psf_4f) 
         if shift == false
             psf1 = ifftshift(psf1)
             slice = 1 : round(Int, 0.5 * N)
         else
             slice = round(Int, 0.25 * N) : round(Int, 0.75 * N)
         end
-	    @test ≈(psf1[slice, slice], psf2[slice, slice], rtol=0.0005)
+	    @test ≈(psf1[slice, slice], psf2[slice, slice], rtol=0.005)
+	    @test ≈(psf_4f[slice, slice], psf2[slice, slice], rtol=0.005)
+
+        
+
     end
 
     lens_test(10e-3, 2048, 100e-3, 1e-3, true)
-    lens_test(100e-3, 2048, 100e-3, 10e-3, true)
-    lens_test(10e-3, 512, 10e-3, 1e-3, false)
+    lens_test(1e-3, 2049, 100e-3, 10e-3, true)
+    lens_test(100e-6, 513, 1e-3, 0.2e-3, false)
 end
