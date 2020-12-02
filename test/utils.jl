@@ -60,3 +60,12 @@ end
         @test length(fftpos(123, N)) == N
     end
 end
+
+
+
+@testset "Test normabs2" begin
+    x = [1.0, 1.0]
+    @test normabs2(x) == x
+    x = [1.0 3.0; 4.0 123123123.2]
+    @test normabs2(x) ≈ abs2.(x) / maximum(abs2.(x))
+end

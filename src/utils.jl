@@ -2,6 +2,25 @@ export center_extract, center_set!, get_indices_around_center, center_pos
 export rr, rr_3D
 export jinc
 export fftpos
+export normabs2
+
+"""
+    normabs2(arr)
+
+Takes abs2 and normalizes maximum to 1
+
+ # Examples
+```jldoctest
+julia> normabs2([10.0, 12.1])
+2-element Array{Float64,1}:
+ 0.6830134553650707
+ 1.0
+```
+"""
+function normabs2(arr)
+    arr2 = abs2.(arr)
+    return arr2 ./ maximum(arr2)
+end
 
 
 """
@@ -148,7 +167,7 @@ Size of the array is `x`
 julia> center_pos(3)
 2
 julia> center_pos(4)
-4
+3
 ```
 """
 function center_pos(x::Integer)
