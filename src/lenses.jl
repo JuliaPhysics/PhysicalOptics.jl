@@ -52,7 +52,7 @@ the center of the array.
 """
 function micro_lens_array(f, L, pitch, size=(512, 512); centered=true, λ=550e-9, n=1)
     # pitch size in indices
-    mla_size = (size .* pitch) .÷  L
+    mla_size = round.(Int, (size .* pitch) ./  L)
     # ÷ doesn't convert to Int tuple
     mla_size = convert(Tuple{Int, Int}, mla_size)
 
