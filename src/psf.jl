@@ -2,6 +2,8 @@ export simple_psf
 export jinc_psf
 
 
+ # shift frequency to center if `shift=true` 
+ # and `norm` the sum to 1
 function shift_and_norm(psf, shift, norm)
     if norm
         psf ./= sum(psf)
