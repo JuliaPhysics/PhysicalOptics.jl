@@ -74,3 +74,33 @@ end
     lens_test(1e-3, 2049, 100e-3, 10e-3, true)
     lens_test(100e-6, 513, 1e-3, 0.2e-3, false)
 end
+
+
+
+@testset "Point source propagation tests" begin
+    N = 100
+    L = 100e-6
+    ps = point_source_propagate(L, (N, N), Point(0.0, 0.0, 0.0))
+    ref = zeros(ComplexF64, (N, N))
+    ref[center_pos(N), center_pos(N)] = 1
+
+    @test ps == ref
+
+    ps = point_source_propagate(L, (N, N), Point(10e-6, 0.0, 10.0e-6))
+    ref = zeros(ComplexF64, (N, N))
+
+    k = 2π/550e-9
+    for (j, x) in enumerate(fftpos(L, N))
+        for (i, y) in enumerate(fftpos(L, N))
+            r = sqrt((x-10e-6)^2 + (y)^2 + (10.0e-6)^2)
+            ref[i, j] = 1/r .* exp(-1im * k * r);
+        end
+    end
+    ref ./= ref[argmax(abs2.(ref))]
+    @test ps ≈ ref
+
+
+    ps = point_source_propagate(L, (N, N), Point(-50.0e-6, -50.0e-6, 0.0))
+    @test ps[1, 1] == 1 
+
+end
