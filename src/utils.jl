@@ -58,7 +58,7 @@ function get_indices_around_center(i_in, i_out)
         return 1 + x, i_in - x
     elseif mod(i_in, 2) == 1 && mod(i_out, 2) == 0
         x = (i_in - 1 - i_out) ÷ 2
-        return 2 + x, i_in - x 
+        return 1 + x, i_in - x - 1 
     elseif mod(i_in, 2) == 0 && mod(i_out, 2) == 1
         x = (i_in - (i_out - 1)) ÷ 2
         return 1 + x, i_in - (x - 1)
