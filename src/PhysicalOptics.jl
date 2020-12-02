@@ -5,6 +5,19 @@ using FFTW
 using SpecialFunctions
 
 
+export Point
+
+
+
+ # define point struct
+struct Point{T}
+    x::T
+    y::T
+    z::T
+end
+
+
+
  # some useful functions
 include("utils.jl")
  # some optics related conversions
