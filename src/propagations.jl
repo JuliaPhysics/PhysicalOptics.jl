@@ -168,18 +168,17 @@ end
 
 
 """
-    mla_propagate(E, L, fmla, mla_num, z1, z2)
+    mla_propagate(E, L, fmla, p_mla, z1, z2)
 
 Propagate an electrical field `E` placed a distance `z1` in front
 of a microlens array, to a distance `z2` behind the microlens array.
 `L` is the size of the field and `fmla` is the focal length of the lenslets.
-`mla_num` is the number of microlenses per side 
+`p_mla` is microlenses pitch.
 """
-function mla_propagate(E, L, fmla, mla_num, z1, z2)
-	mla_pitch = L / mla_num
+function mla_propagate(E, L, fmla, p_mla, z1, z2)
 
     E_front = propagate(E, L, z1)
-	mla = micro_lens_array(fmla, L, mla_pitch, size(E))
+	mla = micro_lens_array(fmla, L, p_mla, size(E))
 	E_mla = E_front .* mla
 	E_behind = propagate(E_mla, L, z2);
 	return E_behind, real(mla)
