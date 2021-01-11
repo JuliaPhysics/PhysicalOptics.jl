@@ -1,7 +1,7 @@
 # PhysicalOptics
 A package for simulation of physical optics. Physical optics is more general than ray optics but not as general as full electrodynamics.
 
-As this package is in an early stage of development, we would be excite to welcome any contributers!
+**As this package is at an early stage of development, we would be excited to welcome any new contributers!**
 
 | **Documentation**                       | **Build Status**                          | **Code Coverage**               |
 |:---------------------------------------:|:-----------------------------------------:|:-------------------------------:|
