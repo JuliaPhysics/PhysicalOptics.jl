@@ -2,6 +2,8 @@ using PhysicalOptics
 using Test
 using FFTW
 using Random
+using SpecialFunctions
+
 
  # fix seed for reproducibility
 Random.seed!(42)

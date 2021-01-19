@@ -69,3 +69,27 @@ end
     x = [1.0 3.0; 4.0 123123123.2]
     @test normabs2(x) ≈ abs2.(x) / maximum(abs2.(x))
 end
+
+
+@testset "Test apply_rot_symmetry" begin
+    
+    function test_asr(f, xpos, xpos_out, ypos_out, rtol)
+        out_ref = [f(sqrt(x^2 + y^2)) for x in xpos_out, y in ypos_out]
+
+
+        ev_1D = [f(x) for x in xpos]
+
+        out = PhysicalOptics.apply_rot_symmetry(ev_1D, xpos, xpos_out, ypos_out)
+        
+        @test ≈(out_ref, out, rtol=rtol)
+    end
+
+    x = range(0, 2 * √2, length=250)
+    x_out = range(0, 2, length=20)
+    test_asr(sin, x, x_out, x_out, 1e-9)
+    
+    x = range(0, 10 * √2, length=1000)
+    x_out = range(0, 10, length=20)
+    test_asr(SpecialFunctions.jinc, x, x_out, x_out, 1e-7)
+
+end
