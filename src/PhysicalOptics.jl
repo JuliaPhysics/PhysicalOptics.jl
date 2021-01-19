@@ -3,7 +3,8 @@ module PhysicalOptics
 using ChainRulesCore
 using FFTW
 using SpecialFunctions
-
+using QuadGK
+using Interpolations
 
 export Point
 
@@ -38,6 +39,9 @@ include("utils_view.jl")
 
  # light propagation
 include("propagations.jl")
+
+ # # light propagation based on analytical integrals
+include("propagation_integrals.jl")
 
  # some lens functions
 include("lenses.jl")
