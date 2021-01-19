@@ -82,8 +82,8 @@ function point_source_propagate(L, size, point::Point; λ=550e-9, n=1)
     # if we are at the plane of the point source
     # return numerical delta
     if iszero(z)
-        i = argmin(map(x -> abs(x - x0), fftpos(L, size[2])))
-        j = argmin(map(y -> abs(y - y0), fftpos(L, size[1])))
+        j = argmin(map(x -> abs(x - x0), fftpos(L, size[2])))
+        i = argmin(map(y -> abs(y - y0), fftpos(L, size[1])))
         out[i, j] = 1
         return out
     end
