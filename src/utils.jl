@@ -1,6 +1,5 @@
 export center_extract, center_set!, get_indices_around_center, center_pos
 export rr, rr_3D
-export jinc
 export fftpos
 export normabs2
 
@@ -258,4 +257,35 @@ function jinc(x::T) where T
 	else
 		return besselj1(x) / x
 	end
+end
+
+
+
+"""
+    apply_rot_symmetry(arr, xs, xs_out, ys_out)
+
+Takes a 1D array `arr` with rotational symmetry about the center point.
+`arr` should have values evaluates at the positions `xs`.
+
+`xs_out` and `ys_out` are the positions for the output array.
+We interpolate `arr` and evaluate it at distances `sqrt(xs_out[j]^2+ys_out[i]^2)`.
+
+"""
+function apply_rot_symmetry(arr, xs, xs_out, ys_out)
+    itp = Interpolations.scale(
+            interpolate(arr, 
+                        BSpline(Cubic(Line(Interpolations.OnCell())))),
+            xs)
+
+    out = zeros(eltype(arr), (length(ys_out), length(xs_out)))
+    
+    for j in axes(out, 2)
+        for i in axes(out, 1)
+            r = sqrt(xs_out[j]^2+ys_out[i]^2)
+            out[i, j] = itp(r) 
+        end
+    end
+
+    return out
+
 end
