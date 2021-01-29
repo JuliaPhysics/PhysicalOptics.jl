@@ -183,43 +183,64 @@ function rr_3D(s)
 end
 
 """
-    rr(s; norm=false)
+    rr(s; L=nothing)
 
-Generate a image with values being the distance to the center pixel.
+Generate a array with values being the distance to the center pixel.
 `s` specifies the output size of the 2D array.
-`norm` normalizes the values to the total size.
+`L` specifies the length. Can be a single number indicating
+the same length for both dimensions or a tuple specifying a length for each 
+dimension separately.
 
 # Examples
 ```julia-repl
-julia> rr((6, 6))
-6×6 Array{Float64,2}:
- 4.24264  3.60555  3.16228  3.0  3.16228  3.60555
- 3.60555  2.82843  2.23607  2.0  2.23607  2.82843
- 3.16228  2.23607  1.41421  1.0  1.41421  2.23607
- 3.0      2.0      1.0      0.0  1.0      2.0
- 3.16228  2.23607  1.41421  1.0  1.41421  2.23607
- 3.60555  2.82843  2.23607  2.0  2.23607  2.82843
+julia> rr((4,4))
+4×4 Array{Float64,2}:
+ 2.82843  2.23607  2.0  2.23607
+ 2.23607  1.41421  1.0  1.41421
+ 2.0      1.0      0.0  1.0
+ 2.23607  1.41421  1.0  1.41421
 
-julia> rr((4,4), norm=true)
+julia> rr((4,4), L=1)
 4×4 Array{Float64,2}:
  1.41421  1.11803   1.0  1.11803
  1.11803  0.707107  0.5  0.707107
  1.0      0.5       0.0  0.5
  1.11803  0.707107  0.5  0.707107
+
+julia> rr((4,4), L=(5, 1))
+4×4 Array{Float64,2}:
+ 5.09902  2.69258  1.0  2.69258
+ 5.02494  2.54951  0.5  2.54951
+ 5.0      2.5      0.0  2.5
+ 5.02494  2.54951  0.5  2.54951
+
+julia> rr((5,5), L=(1, 1))
+5×5 Array{Float64,2}:
+ 1.41421  1.11803   1.0  1.11803   1.41421
+ 1.11803  0.707107  0.5  0.707107  1.11803
+ 1.0      0.5       0.0  0.5       1.0
+ 1.11803  0.707107  0.5  0.707107  1.11803
+ 1.41421  1.11803   1.0  1.11803   1.41421
 ```
 """
-function rr(s; norm=false)
+function rr(s; L=nothing)
     # in case of odd/even array we need to fix the size
     s2 = s[2] %2 == 0 ? s[2] : s[2] -1
     s1 = s[1] %2 == 0 ? s[1] : s[1] -1
     x = fftpos(s2, s[2])'
     y = fftpos(s1, s[1])
 
-    if norm
-        x, y = collect(x), collect(y)
-        x ./= abs(x[1])
-        y ./= abs(y[1])
+    if isnothing(L) == false
+        if typeof(L) <: Number
+            x *= L ./ abs(x[1])
+            y *= L ./ abs(y[1])
+        else
+            x *= L[1] ./ abs(x[1])
+            y *= L[2] ./ abs(y[1])
+        end
     end
+    
+
     r = sqrt.(x.^2 .+ y .^ 2)
     return r
 end
