@@ -1,4 +1,5 @@
 export circ, circ!
+export quadratic!, quadratic
 
 """
     circ(radius_aperture, x, y)
@@ -82,5 +83,54 @@ function circ!(arr::AbstractArray, radius_aperture, L)
             arr[i, j] *= circ(radius_aperture, x, y)
         end
     end
+    return arr
+end
+
+
+"""
+    quadratic(arr, diameter, L[, Δx=0, Δy=0])
+
+Apply a quadratic aperture of `diameter` to an 
+array which has a field width of `L`.
+The aperture is shifted by `Δx, Δy` with respect to the center
+
+There is also an in-place version `quadratic!`
+
+```jldoctest
+julia> quadratic(ones((4, 4)), 5, 10)
+4×4 Array{Float64,2}:
+ 0.0  0.0  0.0  0.0
+ 0.0  1.0  1.0  1.0
+ 0.0  1.0  1.0  1.0
+ 0.0  1.0  1.0  1.0
+
+julia> quadratic(ones((5, 5)), 5, 10)
+5×5 Array{Float64,2}:
+ 0.0  0.0  0.0  0.0  0.0
+ 0.0  1.0  1.0  1.0  0.0
+ 0.0  1.0  1.0  1.0  0.0
+ 0.0  1.0  1.0  1.0  0.0
+ 0.0  0.0  0.0  0.0  0.0
+
+julia> quadratic(ones((5, 5)), 2.5, 5, 1.25) # 1.25 is the size of one step
+5×5 Array{Float64,2}:
+ 0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  1.0  1.0  1.0
+ 0.0  0.0  1.0  1.0  1.0
+ 0.0  0.0  1.0  1.0  1.0
+ 0.0  0.0  0.0  0.0  0.0
+```
+"""
+function quadratic(arr, diameter, L, Δx=0, Δy=0)
+    return quadratic!(copy(arr), diameter, L, Δx, Δy)
+end
+
+function quadratic!(arr, diameter, L, Δx=0, Δy=0)
+    # need to take abs to compare with diameter
+    x = abs.(-Δx .+ fftpos(L, size(arr)[2]))'
+    y = abs.(-Δy .+ fftpos(L, size(arr)[1]))
+
+    arr[(diameter / 2 .< x) .| (diameter / 2 .< y)] .= 0
+
     return arr
 end
