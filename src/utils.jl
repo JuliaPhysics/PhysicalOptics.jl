@@ -23,7 +23,7 @@ end
 
 
 """
-    fftpos(l, N)
+    fftpos(L, N)
 
 Construct a range from -L/2 to L/2.
 However, we ensure that everything is centered around the center
@@ -209,23 +209,23 @@ julia> rr((4,4), norm=true)
 ```
 """
 function rr(s; norm=false)
-    rarr = zeros((s...)) 
-    for j = 1:s[2]
-        for i = 1:s[1]
-                if norm
-                    rarr[i, j] = sqrt( 1/(s[1] ÷ 2)^2 * (i - center_pos(s[1]))^2 + 1 / (s[2] ÷ 2)^2 * (j - center_pos(s[2]))^2)
-                else    
-                    rarr[i, j] = sqrt( (i - center_pos(s[1]))^2 + (j - center_pos(s[2]))^2)
-                end
-        end
+    # in case of odd/even array we need to fix the size
+    s2 = s[2] %2 == 0 ? s[2] : s[2] -1
+    s1 = s[1] %2 == 0 ? s[1] : s[1] -1
+    x = fftpos(s2, s[2])'
+    y = fftpos(s1, s[1])
+
+    if norm
+        x, y = collect(x), collect(y)
+        x ./= abs(x[1])
+        y ./= abs(y[1])
     end
-    return rarr
+    r = sqrt.(x.^2 .+ y .^ 2)
+    return r
 end
 
-
-
 """
-	jinc(x)
+    jinc(x)
 
 Computes the jinc function which is \$\\text{jinc} = \\frac{J_1(x)}{x}\$
 where \$J_1\$ being the first Bessel function.
