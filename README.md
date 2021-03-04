@@ -31,7 +31,7 @@ julia> ] add https://github.com/JuliaPhysics/PhysicalOptics.jl
 * Register adjoints of convolution via ChainRulesCore
 * more tests
 * cleaning of method arguments
-
+* Documentation
 
 ## Literature
 As resources we recommend 
