@@ -9,7 +9,7 @@ A package for simulation of physical optics. Physical optics is more general tha
 
 
 ## Installation
-Currently not registered and under development. But the current main branch can be installed with:
+Currently not registered and under development. But the main branch can be installed with:
 ```julia
 julia> ] add https://github.com/JuliaPhysics/PhysicalOptics.jl
 ```
@@ -24,11 +24,14 @@ julia> ] add https://github.com/JuliaPhysics/PhysicalOptics.jl
 * Optical elements like lenses, apertures
 * some optical conversions
 * micro lenses
+* Light propagation with Fraunhofer 
+* Focused and defocused PSFs (3D) with Debye integral.
 
 ### Wanted
-* Light propagation with Fraunhofer 
-* Focused and defocused PSFs (3D). For example with Debye integral.
 * Register adjoints of convolution via ChainRulesCore
+* more tests
+* cleaning of method arguments
+
 
 ## Literature
 As resources we recommend 
