@@ -5,6 +5,8 @@ using FFTW
 using SpecialFunctions
 using QuadGK
 using Interpolations
+using IndexFunArrays
+
 
 export Point
 

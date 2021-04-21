@@ -57,14 +57,14 @@ end
 
 
 """
-    circ(arr, radius_aperture, L)
+    circ(arr, L, radius_aperture)
 
 Apply circular aperture of radius `radius_aperture` to an
 array which has field width of `L`.
 `circ!` is also available.
 
 ```jldoctest
-julia> circ(ones((5, 5)), 2.5, 5)
+julia> circ(ones((5, 5)), 5, 2.5)
 5×5 Array{Float64,2}:
  0.0  0.0  1.0  0.0  0.0
  0.0  1.0  1.0  1.0  0.0
@@ -73,22 +73,19 @@ julia> circ(ones((5, 5)), 2.5, 5)
  0.0  0.0  1.0  0.0  0.0
 ```
 """
-function circ(arr::AbstractArray, radius_aperture, L)
-    return circ!(copy(arr), radius_aperture, L)
+function circ(arr::AbstractArray, L, radius_aperture)
+    return circ!(copy(arr), L, radius_aperture)
 end
 
-function circ!(arr::AbstractArray, radius_aperture, L)
-    for (j, x) in enumerate(fftpos(L, size(arr)[2]))
-        for (i, y) in enumerate(fftpos(L, size(arr)[1]))
-            arr[i, j] *= circ(radius_aperture, x, y)
-        end
-    end
+function circ!(arr::AbstractArray, L, radius_aperture)
+    radius_arr = PhysicalOptics.rr(size(arr), L=L)
+    arr .*= (radius_aperture .≥ radius_arr)
     return arr
 end
 
 
 """
-    quadratic(arr, diameter, L[, Δx=0, Δy=0])
+    quadratic(arr, L, diameter, [, diameter=(0,0)])
 
 Apply a quadratic aperture of `diameter` to an 
 array which has a field width of `L`.
@@ -97,14 +94,14 @@ The aperture is shifted by `Δx, Δy` with respect to the center
 There is also an in-place version `quadratic!`
 
 ```jldoctest
-julia> quadratic(ones((4, 4)), 5, 10)
+julia> quadratic(ones((4, 4)), 10, 5)
 4×4 Array{Float64,2}:
  0.0  0.0  0.0  0.0
  0.0  1.0  1.0  1.0
  0.0  1.0  1.0  1.0
  0.0  1.0  1.0  1.0
 
-julia> quadratic(ones((5, 5)), 5, 10)
+julia> quadratic(ones((5, 5)), 10, 5)
 5×5 Array{Float64,2}:
  0.0  0.0  0.0  0.0  0.0
  0.0  1.0  1.0  1.0  0.0
@@ -112,7 +109,7 @@ julia> quadratic(ones((5, 5)), 5, 10)
  0.0  1.0  1.0  1.0  0.0
  0.0  0.0  0.0  0.0  0.0
 
-julia> quadratic(ones((5, 5)), 2.5, 5, 1.25) # 1.25 is the size of one step
+julia> quadratic(ones((5, 5)), 5, 2.5, (0.0, 1.25)) 
 5×5 Array{Float64,2}:
  0.0  0.0  0.0  0.0  0.0
  0.0  0.0  1.0  1.0  1.0
@@ -121,16 +118,21 @@ julia> quadratic(ones((5, 5)), 2.5, 5, 1.25) # 1.25 is the size of one step
  0.0  0.0  0.0  0.0  0.0
 ```
 """
-function quadratic(arr, diameter, L, Δx=0, Δy=0)
-    return quadratic!(copy(arr), diameter, L, Δx, Δy)
+function quadratic(arr, L, diameter,  offset::NTuple{2, <: Number}=(0, 0))
+    return quadratic!(copy(arr), L, diameter, offset)
 end
 
-function quadratic!(arr, diameter, L, Δx=0, Δy=0)
+function quadratic!(arr, L, diameter, offset::NTuple{2, <: Number}=(0,0))
     # need to take abs to compare with diameter
-    x = abs.(-Δx .+ fftpos(L, size(arr)[2]))'
-    y = abs.(-Δy .+ fftpos(L, size(arr)[1]))
-
-    arr[(diameter / 2 .< x) .| (diameter / 2 .< y)] .= 0
+    x = abs.(-offset[2] .+ fftpos(L[2], size(arr, 2)))'
+    y = abs.(-offset[1] .+ fftpos(L[1], size(arr, 1)))
+    
+    arr .*= (diameter[2] / 2 .≥ x)
+    arr .*= (diameter[1] / 2 .≥ y)
 
     return arr
+end
+
+function quadratic!(arr, L::Number, diameter::Number, offset::NTuple{2, <:Number}=(0,0))
+    return quadratic!(arr, (L, L), (diameter, diameter), offset)
 end

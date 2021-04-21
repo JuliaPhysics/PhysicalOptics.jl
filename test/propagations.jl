@@ -43,7 +43,7 @@ end
         # place point source at center
 	    E0[center_pos(N), center_pos(N)] = 1
 	    E1, L1 = lens_propagate(E0, L, f)
-	    E1_ = circ(E1, radius, L1)
+	    E1_ = circ(E1, L1, radius)
 	    E2, L2 = lens_propagate(E1_, L1, f)
 	    psf_ = abs2.(E2)
 	    psf = psf_ ./ sum(psf_)

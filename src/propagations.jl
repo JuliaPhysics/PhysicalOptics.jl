@@ -64,7 +64,7 @@ function propagate(arr, L, z; kernel=rs_kernel, λ=550e-9, n=1)
 end
 
 """
-    point_source_propagate(L, size, point; λ=550e-9, n=1)
+    point_source_propagate(L, size, point; λ=550e-9, n=1, dtype=ComplexF64)
 
 Propagate a point source in a field of width `L` with array size `size` 
 over a distance `z` in a medium with refractive index `n`.
@@ -75,9 +75,9 @@ This is based on the analytical solution in real space and not on Fourier
 space propagation. The latter one suffers from artifacts while microscopic large `L`.
 This function should be always preferred for point sources.
 """
-function point_source_propagate(L, size, point::Point; λ=550e-9, n=1)
+function point_source_propagate(L, size, point::Point; λ=550e-9, n=1, dtype=ComplexF64)
     x0, y0, z = point.x, point.y, point.z
-    out = zeros(ComplexF64, size)
+    out = zeros(dtype, size)
     k = calc_k(λ, n)
     # if we are at the plane of the point source
     # return numerical delta
@@ -159,7 +159,7 @@ function four_f_propagate(arr, L, f1, f2, NA)
     E1, L1 = lens_propagate(arr, L, f1)
     # check that the field size is large enough that the pupil fits
     @assert radius < L1 / 2
-	E1_ = circ(E1, radius, L1)
+	E1_ = circ(E1, L1, radius)
 	E2, L2 = lens_propagate(E1_, L1, f2)
 	
 	return E2, L2
