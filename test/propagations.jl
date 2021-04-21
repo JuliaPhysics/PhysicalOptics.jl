@@ -140,4 +140,24 @@ end
 
 
 
-
+@testset "Compare Point source propagate with different lens_prop" begin
+    L = 50e-6
+    
+    f = 20e-3
+    z = 50e-6
+    N = 256
+    E1 = point_source_propagate(L, (N, N), Point(0.0e-3, 0.0, z), dtype=ComplexF32)
+    E1, L1 = lens_propagate(E1, L, f, d=f)
+    quadratic!(E1, L1, L1/9)
+    E1, L1 = lens_propagate(E1, L1, f)
+    I1 = abs2.(E1)
+    I1 ./= sum(I1)
+    
+    E2 = point_source_propagate(L, (N, N), Point(0.0e-3, 0.0, 0.0), dtype=ComplexF32)
+    E2, L2 = lens_propagate(E2, L, f, d=f-z)
+    quadratic!(E2, L2, L2/9)
+    E2, L2 = lens_propagate(E2, L2, f)
+    I2 = abs2.(E2)
+    I2 ./= sum(I2)
+    @test .≈(I1 .+ 1, I2 .+ 1, rtol=1e-5)  |> all
+end
