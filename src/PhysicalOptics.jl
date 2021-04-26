@@ -5,7 +5,7 @@ using FFTW
 using SpecialFunctions
 using QuadGK
 using Interpolations
-#using IndexFunArrays
+using IndexFunArrays
 using FourierTools
 using Zygote
 using CUDA
@@ -19,9 +19,9 @@ if CUDA.functional()
     to_gpu_or_cpu(x::AbstractArray) = CuArray(x)
     to_gpu_or_cpu(arr::CuArray, x::AbstractArray) = CuArray(x)
 else
-    to_gpu_or_cpu(x::AbstractArray) = x
+    to_gpu_or_cpu(b::Bool, x::AbstractArray) = b ? throw("CUDA.functional() = false") : x
+    to_gpu_or_cpu(arr::AbstractArray) = arr 
 end
-
 
 export Point
 
