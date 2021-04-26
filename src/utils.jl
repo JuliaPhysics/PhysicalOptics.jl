@@ -50,6 +50,9 @@ julia> collect(fftpos(1, 5))
 ```
 """
 function fftpos(l, N)
+    if iszero(l) || isone(N)
+        return zero(l):zero(l)
+    end
     if N % 2 == 0
         dx = l / N
         return range(-l/2, l/2-dx, length=N)
@@ -57,6 +60,23 @@ function fftpos(l, N)
         return range(-l/2, l/2, length=N) 
     end
 end
+
+
+function fftpos_old(l, N)
+    if iszero(l) && isone(N)
+        return l:l
+    end
+    if N % 2 == 0
+        dx = l / N
+        return -l/2:dx:l/2-dx
+    else
+        dx = l / (N-1)
+        return -l/2:dx:l/2
+    end
+end
+
+
+
 
 """
     get_indices_around_center(i_in, i_out)
@@ -223,17 +243,17 @@ julia> PhysicalOptics.rr((5,5), L=(1, 1))
  0.707107  0.559017  0.5   0.559017  0.707107
 ```
 """
-function rr(s; L=nothing)
+function rr_old(s; L=nothing)
     # in case of odd/even array we need to fix the size
     s2 = s[2] %2 == 0 ? s[2] : s[2] -1
     s1 = s[1] %2 == 0 ? s[1] : s[1] -1
     x = fftpos(s2, s[2])'
     y = fftpos(s1, s[1])
-    
+
     if isnothing(L) == false
         if typeof(L) <: Number
             x *= L ./ 2 ./ abs(x[1])
-            y *= L ./ 2 ./ abs(y[1])
+            y *= L ./ 2 ./  abs(y[1])
         else
             x *= L[1] ./ 2 ./ abs(x[1])
             y *= L[2] ./ 2 ./ abs(y[1])
@@ -244,6 +264,29 @@ function rr(s; L=nothing)
     r = sqrt.(x.^2 .+ y .^ 2)
     return r
 end
+
+function rr(s; L=nothing, cuda=false)
+    if isnothing(L) == false
+        if typeof(L) <: Number
+            x = to_gpu_or_cpu(cuda, fftpos(L, s[2])')
+            y = to_gpu_or_cpu(cuda, fftpos(L, s[1]))
+        else
+            x = to_gpu_or_cpu(cuda, fftpos(L[2], s[2])')
+            y = to_gpu_or_cpu(cuda, fftpos(L[1], s[1]))
+        end
+    else
+        s2 = s[2] %2 == 0 ? s[2] : s[2] -1
+        s1 = s[1] %2 == 0 ? s[1] : s[1] -1
+        x = to_gpu_or_cpu(cuda, fftpos(s2, s[2])')
+        y = to_gpu_or_cpu(cuda, fftpos(s1, s[1]))
+    end
+    
+
+    r = sqrt.(x.^2 .+ y .^ 2)
+    return r
+end
+
+
 
 """
     jinc(x)
