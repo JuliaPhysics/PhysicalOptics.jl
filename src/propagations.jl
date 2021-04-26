@@ -44,24 +44,27 @@ function propagate(arr, L, z; kernel=rs_kernel, λ=550e-9, n=1)
     end
 
     # array with the frequencies in Fourier space
-    freq_x = fftfreq(size(arr)[2], size(arr)[2] / L)
-    freq_y = fftfreq(size(arr)[1], size(arr)[1] / L)
-
-    # go to Fourier space
+    freq_x = Zygote.@ignore fftfreq(size(arr)[2], size(arr)[2] / L)' |> to_gpu_or_cpu 
+    freq_y = Zygote.@ignore fftfreq(size(arr)[1], size(arr)[1] / L) |> to_gpu_or_cpu
+    
     arr_ft = fft(arr)
 
-    out_ft = copy(arr_ft)
-    # multiply the kernel for each entry with the field in Fourier space
-    for (j, fx) in enumerate(freq_x)
-        for (i, fy) in enumerate(freq_y)
-            out_ft[i, j] = arr_ft[i, j] * kernel(fx, fy, z, λ, n)
-        end
-    end
-    # go back to real space
+    κ = calc_κ(λ, n) 
+    c_sqrt = typeof(arr)(κ^2 .- (freq_x.^2 .+ freq_y.^2))
+    c = 1im * eltype(arr)(z * 2π)
+    out_ft = arr_ft .* (exp.(c .* sqrt.(c_sqrt)))
+    #out_ft = arr_ft .* kernel.(freq_x, freq_y, Ref(z), Ref(λ), Ref(n))
     out = ifft(out_ft)
-
     return out
 end
+
+
+function propagate_tilted_plane(arr, L, z, tilting_ϕ; kernel=rs_kernel, λ=550e-9, n=1)
+
+
+end
+
+
 
 """
     point_source_propagate(L, size, point; λ=550e-9, n=1, dtype=ComplexF64)
@@ -125,20 +128,18 @@ function lens_propagate(arr, L, f; λ=550e-9, n=1, d=nothing)
     end
     κ = calc_κ(λ, n)
     # shift to center again
-    out = fftshift(fft(ifftshift(arr)))
+    out_f = fftshift(fft(ifftshift(arr)))
     dx = L / size(arr)[2]
     dy = L / size(arr)[1]
 
     # lens performs scaled fourier transform. Therefore new field size
     L_new = λ * f / dx
-
-    # complex pre factor of final results
-    for (j, x) in enumerate(fftpos(L_new, size(arr)[2]))
-        for (i, y) in enumerate(fftpos(L_new, size(arr)[1]))
-            c = 1 / (1im * λ * f) * exp(1im * π * κ / f * (1 - d / f) * (x^2 + y^2))
-            out[i, j] *= c * dx * dy
-        end
-    end
+    
+    x = Zygote.@ignore to_gpu_or_cpu(arr, fftpos(L_new, size(arr)[2])')
+    y = Zygote.@ignore to_gpu_or_cpu(arr, fftpos(L_new, size(arr)[1]))
+    c = @. 1 / (1im * λ * f) * exp(1im * π * κ / f * (1 - d / f) * (x^2 + y^2))
+    out = out_f .* (c * dx * dy)
+    
     return out, L_new
 end
 
