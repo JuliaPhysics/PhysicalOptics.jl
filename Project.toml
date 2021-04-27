@@ -23,6 +23,7 @@ IndexFunArrays = "0.1.7"
 Interpolations = "0.12, 0.13"
 QuadGK = "2.4.1"
 SpecialFunctions = "1, 1.1, 1.2"
+Zygote = "0.6"
 julia = "1.6"
 
 [extras]
