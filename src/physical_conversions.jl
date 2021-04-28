@@ -1,5 +1,6 @@
 export calc_k, calc_λ, calc_κ
 export calc_NA
+export fresnel_number
 
 """
     calc_NA(focal_length, diameter[, n])
@@ -56,3 +57,12 @@ function calc_λ(k, n=1)
 end
 
 
+"""
+    fresnel_number(a, L, λ=λ0)
+
+Calculate the Fresnel number where `a` is the characteristic size,
+`L` the distance from screen to aperture and `λ` the wavelength.
+"""
+function fresnel_number(a, L, λ=λ0)
+    return a^2 / L / λ
+end
