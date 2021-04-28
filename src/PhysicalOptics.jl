@@ -17,7 +17,7 @@ if CUDA.functional()
     is_cuda(arr::CuArray) = true
     to_gpu_or_cpu(b::Bool, x::AbstractArray) = b ? CuArray(x) : x
     to_gpu_or_cpu(x::AbstractArray) = CuArray(x)
-    to_gpu_or_cpu(arr::CuArray, x::AbstractArray) = CuArray(x)
+    to_gpu_or_cpu(arr::CuArray, x::AbstractArray) = CuArray{eltype(arr)}(x)
 else
     to_gpu_or_cpu(b::Bool, x::AbstractArray) = b ? throw("CUDA.functional() = false") : x
     to_gpu_or_cpu(arr::AbstractArray) = arr 
@@ -35,6 +35,7 @@ struct Point{T}
 end
 
 
+const λ0 = 550f-9
 
  # some useful functions
 include("utils.jl")
