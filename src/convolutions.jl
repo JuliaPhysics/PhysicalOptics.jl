@@ -260,3 +260,29 @@ function plan_conv_r(psf, dims=1:ndims(psf))
     return otf, conv
 end
 
+
+"""
+This convolution is based on the real space sliding scheme.
+The kernel is expected to have the center point in the way like FFT
+defines it
+
+`arr` is the arr and `kernel` is the small kernel.
+
+"""
+function conv_sum_2D(arr, kernel)
+    out = similar(arr)
+    fill!(out, zero(eltype(arr)))
+    k0, l0 = center_pos(size(kernel)[2]), center_pos(size(kernel)[1])
+    for j = firstindex(arr, 2)+k0:lastindex(arr, 2)-k0 
+        for i = firstindex(arr, 2)+l0:lastindex(arr, 2)-l0
+            s = zero(eltype(arr))
+            for l = firstindex(kernel, 2) - l0:lastindex(kernel, 2) - l0
+                for k = firstindex(kernel, 1) - k0:lastindex(kernel, 1) - k0
+                    s += arr[i + l, j + k] * kernel[l + l0, k + k0] 
+                end
+            end
+            out[i, j] = s
+        end
+    end
+    return out
+end
