@@ -265,27 +265,31 @@ function rr_old(s; L=nothing)
     return r
 end
 
-function rr(s; L=nothing, cuda=false)
-    if isnothing(L) == false
-        if typeof(L) <: Number
-            x = to_gpu_or_cpu(cuda, fftpos(L, s[2])')
-            y = to_gpu_or_cpu(cuda, fftpos(L, s[1]))
-        else
-            x = to_gpu_or_cpu(cuda, fftpos(L[2], s[2])')
-            y = to_gpu_or_cpu(cuda, fftpos(L[1], s[1]))
-        end
-    else
-        s2 = s[2] %2 == 0 ? s[2] : s[2] -1
-        s1 = s[1] %2 == 0 ? s[1] : s[1] -1
-        x = to_gpu_or_cpu(cuda, fftpos(s2, s[2])')
-        y = to_gpu_or_cpu(cuda, fftpos(s1, s[1]))
-    end
-    
-
+function rr(s, arr_type=Array; L=nothing)
+    x, y = _get_rr_x_y(L, s, arr_type)
     r = sqrt.(x.^2 .+ y .^ 2)
     return r
 end
 
+function _get_rr_x_y(L::Number, s, arr_type)
+    x = to_gpu_or_cpu(arr_type, fftpos(L, s[2])')
+    y = to_gpu_or_cpu(arr_type, fftpos(L, s[1]))
+    return x, y
+end
+
+function _get_rr_x_y(L, s, arr_type)
+    x = to_gpu_or_cpu(arr_type, fftpos(L[2], s[2])')
+    y = to_gpu_or_cpu(arr_type, fftpos(L[1], s[1]))
+    return x, y
+end
+
+function _get_rr_x_y(L::Nothing, s, arr_type)
+    s2 = s[2] %2 == 0 ? s[2] : s[2] -1
+    s1 = s[1] %2 == 0 ? s[1] : s[1] -1
+    x = to_gpu_or_cpu(arr_type, fftpos(s2, s[2])')
+    y = to_gpu_or_cpu(arr_type, fftpos(s1, s[1]))
+    return x, y
+end
 
 
 """
