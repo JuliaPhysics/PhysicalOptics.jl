@@ -74,8 +74,9 @@ julia> circ(ones((5, 5)), 5, 2.5)
 ```
 """
 function circ(arr::AbstractArray, L, radius_aperture)
-    radius_arr = PhysicalOptics.rr(size(arr), L=L, cuda=is_cuda(arr))
-    arr_new = arr .* (radius_aperture .≥ radius_arr)
+    radius_arr = Zygote.@ignore PhysicalOptics.rr(size(arr), typeof(arr), L=L)
+    pupil = Zygote.@ignore (radius_aperture .≥ radius_arr)
+    arr_new = arr .* pupil 
     return arr_new
 end
 
