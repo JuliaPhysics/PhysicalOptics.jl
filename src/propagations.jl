@@ -29,13 +29,13 @@ function rs_kernel(fx, fy, z, λ=λ0, n=1)
 end
 
 """
-    propagate(arr, L, z; kernel=rs_kernel, λ=550e-9, n=1)
+    propagate!(arr, L, z; kernel=rs_kernel, λ=550e-9, n=1)
 
 Propagate an electric field `arr` with a array size (in physical dimensions like meter etc) of `L` over the distance `z`.
 Per default `kernel=rs_kernel` (Rayleigh-Sommerfeld) is the propagation kernel. 
 `λ` is the wavelength and `n` the refractive index.
 """
-function propagate(arr, L, z; kernel=rs_kernel, λ=λ0, n=1)
+function propagate!(arr, L, z; kernel=rs_kernel, λ=λ0, n=1)
     # trivial propagation
     if iszero(z)
         # return a copy instead of arr
@@ -46,21 +46,47 @@ function propagate(arr, L, z; kernel=rs_kernel, λ=λ0, n=1)
     # array with the frequencies in Fourier space
     freq_x = to_gpu_or_cpu(arr, Zygote.@ignore eltype(arr).(fftfreq(size(arr)[2], size(arr)[2] / L)'))
     freq_y = to_gpu_or_cpu(arr, Zygote.@ignore eltype(arr).(fftfreq(size(arr)[1], size(arr)[1] / L)))
-    arr_ft = fft(arr)
-
+    arr_ft = fft!(arr)
+    
     κ = eltype(arr)(calc_κ(λ, n))
-    c_sqrt = (κ^2 .- (freq_x.^2 .+ freq_y.^2))
-    c = 1im * eltype(arr)(z * 2π)
-    out_ft = arr_ft .* (exp.(c .* sqrt.(c_sqrt)))
+    c_sqrt = Zygote.@ignore (κ^2 .- (freq_x.^2 .+ freq_y.^2))
+    c = Zygote.@ignore 1im * eltype(arr)(z * 2π)
+    c_exp = Zygote.@ignore (exp.(c .* sqrt.(c_sqrt)))
+    out_ft = arr_ft .* c_exp 
     #out_ft = arr_ft .* kernel.(freq_x, freq_y, Ref(z), Ref(λ), Ref(n))
-    out = ifft(out_ft)
+    out = ifft!(out_ft)
     return out
 end
 
+function propagate(arr, L, z; kernel=rs_kernel, λ=λ0, n=1)
+    propagate!(complex.(arr), L, z, kernel=kernel, λ=λ, n=n)
+end
 
-function propagate_tilted_plane(arr, L, z, tilting_ϕ; kernel=rs_kernel, λ=550e-9, n=1)
 
 
+function propagate_tilted_plane(arr, L, z, tilting_ϕ, dim=1; kernel=rs_kernel, λ=λ0, n=1)
+    Zygote.@ignore GC.gc(true)
+    Δzs = z .+ fftpos(L, size(arr, 1)) .* tan(deg2rad(tilting_ϕ))
+    
+    arr2 = propagate!(arr, L, Δzs[1])
+    if dim == 1
+        out = arr2[1:1, :]
+    else
+        out = arr2[:, 1:1] 
+    end
+    for (i, Δz) in enumerate(Δzs)
+        Δz = Δzs.step
+        if isone(i)
+            continue
+        end
+        arr2 = propagate!(arr2, L, Δz, kernel=rs_kernel, λ=λ, n=n)
+        if dim == 1
+            out = vcat(out, arr2[i:i, :])
+        else
+            out = hcat(out, arr2[:, i:i])
+        end
+    end
+    return out
 end
 
 
@@ -77,7 +103,7 @@ This is based on the analytical solution in real space and not on Fourier
 space propagation. The latter one suffers from artifacts while microscopic large `L`.
 This function should be always preferred for point sources.
 """
-function point_source_propagate(L, size, point::Point; λ=550e-9, n=1, dtype=ComplexF64)
+function point_source_propagate(L, size, point::Point; λ=λ0, n=1, dtype=ComplexF64)
     x0, y0, z = point.x, point.y, point.z
     out = zeros(dtype, size)
     k = calc_k(λ, n)
@@ -127,7 +153,10 @@ function lens_propagate(arr, L, f; λ=λ0, n=1, d=nothing)
     end
     κ = calc_κ(λ, n)
     # shift to center again
-    out_f = fftshift(fft(ifftshift(arr)))
+    if typeof(arr) <: Array{<:Real}
+        arr = complex.(arr)
+    end
+    out_f = fftshift(fft!(ifftshift(arr)))
     dx = L / size(arr)[2]
     dy = L / size(arr)[1]
 

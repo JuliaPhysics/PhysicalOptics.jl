@@ -97,7 +97,7 @@ end
     ps = point_source_propagate(L, (N, N), Point(10e-6, 0.0, 10.0e-6))
     ref = zeros(ComplexF64, (N, N))
 
-    k = 2π/550e-9
+    k = 2π/550f-9
     for (j, x) in enumerate(fftpos(L, N))
         for (i, y) in enumerate(fftpos(L, N))
             r = sqrt((x-10e-6)^2 + (y)^2 + (10.0e-6)^2)
@@ -105,7 +105,7 @@ end
         end
     end
     ref ./= ref[argmax(abs2.(ref))]
-    @test ps ≈ ref
+    @test ≈(ps, ref, rtol=1e-14)
 
 
     ps = point_source_propagate(L, (N, N), Point(-50.0e-6, -50.0e-6, 0.0))
