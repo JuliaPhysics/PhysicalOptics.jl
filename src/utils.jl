@@ -2,6 +2,55 @@ export center_extract, center_set!, get_indices_around_center, center_pos
 export rr, rr_3D
 export fftpos
 export normabs2
+export get_index_for_pos
+
+"""
+    get_index_for_pos(pos_arr, pos)
+
+For a arr containing `range` like data,
+return the `index` which is closest to the `pos` value
+
+# Example
+```julia-repl
+julia> pos = collect(fftpos(1, 5))
+5-element Vector{Float64}:
+ -0.5
+ -0.25
+  0.0
+  0.25
+  0.5
+
+julia> get_index_for_pos(pos, 0.124)
+3
+
+julia> get_index_for_pos(pos, 0.1251)
+4
+
+julia> pos = collect(fftpos(1, 6))
+6-element Vector{Float64}:
+ -0.5
+ -0.3333333333333333
+ -0.16666666666666666
+  2.2204460492503052e-17
+  0.16666666666666669
+  0.33333333333333337
+
+julia> get_index_for_pos(pos, 0)
+4
+
+julia> get_index_for_pos(pos, 0.1)
+5
+```
+"""
+function get_index_for_pos(pos_arr, pos)
+    left = pos_arr[begin]
+    right = pos_arr[end]
+    Δ = (right - left) / (length(pos_arr) - 1)
+
+    ind = 1 + round(Int, (pos - left) / Δ) 
+    return ind
+end
+
 
 """
     normabs2(arr)
