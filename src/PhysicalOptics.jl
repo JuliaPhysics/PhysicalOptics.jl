@@ -69,6 +69,8 @@ include("lenses.jl")
  # point spread functions
 include("psf.jl")
 
+# gaussian beams
+include("gaussian.jl")
 
 
 end # module

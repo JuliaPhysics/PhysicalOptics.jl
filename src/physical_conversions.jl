@@ -30,7 +30,7 @@ medium with refractive index `n`.
 It holds: \$ k = \\kappa \\cdot 2 \\pi \$
 """
 function calc_k(λ, n=1)
-    return 2 * π * n / λ
+    return 2 * oftype(λ, π) * n / λ
 end
 
 """
@@ -41,7 +41,7 @@ medium with refractive index `n`.
 It holds: \$ \\kappa = \\frac{k}{2 \\pi} \$
 """
 function calc_κ(λ, n=1)
-    return calc_k(λ, n) / 2 / π
+    return calc_k(λ, n) / 2 / oftype(λ, π)
 end
 
 
@@ -53,7 +53,7 @@ medium with refractive index `n`.
 It holds: \$ \\lambda = \\frac{n \\cdot 2 \\pi}{k} \$
 """ 
 function calc_λ(k, n=1)
-    return 2 * π * n / k
+    return 2 * oftype(λ, π) * n / k
 end
 
 
