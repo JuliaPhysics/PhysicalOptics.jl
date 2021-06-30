@@ -35,7 +35,7 @@ Propagate an electric field `arr` with a array size (in physical dimensions like
 Per default `kernel=rs_kernel` (Rayleigh-Sommerfeld) is the propagation kernel. 
 `λ` is the wavelength and `n` the refractive index.
 """
-function propagate!(arr, L, z; kernel=rs_kernel, λ=λ0, n=1)
+function propagate!(arr, L, z; kernel=rs_kernel, λ=λ0, n=1, fft_plan=plan_fft!(arr))
     # trivial propagation
     if iszero(z)
         # return a copy instead of arr
@@ -46,7 +46,7 @@ function propagate!(arr, L, z; kernel=rs_kernel, λ=λ0, n=1)
     # array with the frequencies in Fourier space
     freq_x = to_gpu_or_cpu(arr, Zygote.@ignore eltype(arr).(fftfreq(size(arr)[2], size(arr)[2] / L)'))
     freq_y = to_gpu_or_cpu(arr, Zygote.@ignore eltype(arr).(fftfreq(size(arr)[1], size(arr)[1] / L)))
-    arr_ft = fft!(arr)
+    arr_ft = fft_plan * arr
     
     κ = eltype(arr)(calc_κ(λ, n))
     c_sqrt = Zygote.@ignore (κ^2 .- (freq_x.^2 .+ freq_y.^2))
@@ -54,7 +54,8 @@ function propagate!(arr, L, z; kernel=rs_kernel, λ=λ0, n=1)
     c_exp = Zygote.@ignore (exp.(c .* sqrt.(c_sqrt)))
     out_ft = arr_ft .* c_exp 
     #out_ft = arr_ft .* kernel.(freq_x, freq_y, Ref(z), Ref(λ), Ref(n))
-    out = ifft!(out_ft)
+    p_inv = Zygote.@ignore inv(fft_plan)
+    out = p_inv.scale .* (p_inv.p * out_ft)
     return out
 end
 
@@ -64,11 +65,11 @@ end
 
 
 
-function propagate_tilted_plane(arr, L, z, tilting_ϕ, dim=1; kernel=rs_kernel, λ=λ0, n=1)
+function propagate_tilted_plane(arr, L, z, tilting_ϕ, dim=1; kernel=rs_kernel, λ=λ0, n=1, fft_plan=plan_fft!(arr))
     Zygote.@ignore GC.gc(true)
     Δzs = z .+ fftpos(L, size(arr, 1)) .* tan(deg2rad(tilting_ϕ))
-    
-    arr2 = propagate!(arr, L, Δzs[1])
+   
+    arr2 = propagate!(arr, L, Δzs[1], fft_plan=fft_plan)
     if dim == 1
         out = arr2[1:1, :]
     else
@@ -79,7 +80,7 @@ function propagate_tilted_plane(arr, L, z, tilting_ϕ, dim=1; kernel=rs_kernel, 
         if isone(i)
             continue
         end
-        arr2 = propagate!(arr2, L, Δz, kernel=rs_kernel, λ=λ, n=n)
+        arr2 = propagate!(arr2, L, Δz, kernel=rs_kernel, λ=λ, n=n, fft_plan=fft_plan)
         if dim == 1
             out = vcat(out, arr2[i:i, :])
         else
@@ -116,14 +117,14 @@ function point_source_propagate(L, size, point::Point; λ=λ0, n=1, dtype=Comple
         return out
     end
     # calculate values
-    for (j, x) in enumerate(fftpos(L, size[2]))
+    @inbounds for (j, x) in enumerate(fftpos(L, size[2]))
         for (i, y) in enumerate(fftpos(L, size[1]))
             # z>0 means that we back propagate the PS to z=0
-            r = sign(-z) * sqrt((x-x0)^2 + (y-y0)^2 + z^2)
+            r = dtype(sign(-z) * sqrt((x-x0)^2 + (y-y0)^2 + z^2))
             out[i, j] = 1/r .* exp(1im * k * r);
         end
     end
-    out ./= out[argmax(abs2.(out))]
+    out = out ./ out[argmax(abs2.(out))]
     return out
 end
 
@@ -147,7 +148,7 @@ Based on:
 * "Computational Fourier Optics. A MATLAB Tutorial", D. Voelz, (2011).
 * Goodman, Joseph W. Introduction to Fourier optics
 """
-function lens_propagate(arr, L, f; λ=λ0, n=1, d=nothing)
+function lens_propagate(arr, L, f; λ=λ0, n=1, d=nothing, fft_plan=plan_fft!(complex.(arr)))
     if isnothing(d)
         d = f
     end
@@ -156,7 +157,7 @@ function lens_propagate(arr, L, f; λ=λ0, n=1, d=nothing)
     if typeof(arr) <: Array{<:Real}
         arr = complex.(arr)
     end
-    out_f = fftshift(fft!(ifftshift(arr)))
+    out_f = fftshift(fft_plan * ifftshift(arr))
     dx = L / size(arr)[2]
     dy = L / size(arr)[1]
 
@@ -177,17 +178,21 @@ end
 
 
 """
-    four_f_propagate(arr, L, f1, f2, NA)
+    four_f_propagate(arr, L, f1, f2, NA; fft_plan=fft_plan, d=nothing)
 
 Propagate the electrical field `arr` (field size `L`) from front
 focal plane to the back focal plane of a 4f system.
 The focal length of the first lens is `f1` and the second lens `f`.
 Magnification of the system is then `f2/f1`.
+`d` is the distance from lens to the point of the `arr` in front
+of the lens. If `d == nothing` then we propagate from object plane to
+image plane.
+
 """
-function four_f_propagate(arr, L, f1, f2, NA)
+function four_f_propagate(arr, L, f1, f2, NA; d=nothing, fft_plan=plan_fft!(complex.(arr)))
 	radius = NA * 2 * f1 / 2 
 	
-    out = lens_propagate(arr, L, f1)
+    out = lens_propagate(arr, L, f1, fft_plan=fft_plan, d=d)
     E1 = out[1]
     L1 = out[2]
     # check that the field size is large enough that the pupil fits
@@ -195,17 +200,16 @@ function four_f_propagate(arr, L, f1, f2, NA)
 	E1_ = circ(E1, L1, radius)
 
     # tuple of E2 and L2
-    out2 = lens_propagate(E1_, L1, f2)
+    out2 = lens_propagate(E1_, L1, f2, fft_plan=fft_plan)
     return out2 
 end
-
 
 
 """
     mla_propagate(E, L, fmla, p_mla, z1, z2)
 
 Propagate an electrical field `E` placed a distance `z1` in front
-of a microlens array, to a distance `z2` behind the microlens array.
+of a microlns array, to a distance `z2` behind the microlens array.
 `L` is the size of the field and `fmla` is the focal length of the lenslets.
 `p_mla` is microlenses pitch.
 """
