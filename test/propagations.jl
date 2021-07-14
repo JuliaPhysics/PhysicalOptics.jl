@@ -89,13 +89,13 @@ end
     N = 100
     L = 100e-6
     ps = point_source_propagate(L, (N, N), Point(0.0, 0.0, 0.0))
-    ref = zeros(ComplexF64, (N, N))
+    ref = zeros(ComplexF32, (N, N))
     ref[center_pos(N), center_pos(N)] = 1
 
     @test ps == ref
 
     ps = point_source_propagate(L, (N, N), Point(10e-6, 0.0, 10.0e-6))
-    ref = zeros(ComplexF64, (N, N))
+    ref = zeros(ComplexF32, (N, N))
 
     k = 2π/550f-9
     for (j, x) in enumerate(fftpos(L, N))
@@ -105,7 +105,7 @@ end
         end
     end
     ref ./= ref[argmax(abs2.(ref))]
-    @test ≈(ps, ref, rtol=1e-14)
+    @test ≈(ComplexF32.(ps), ComplexF32.(ref), rtol=1e-4)
 
 
     ps = point_source_propagate(L, (N, N), Point(-50.0e-6, -50.0e-6, 0.0))
@@ -122,7 +122,7 @@ end
 	    h1 = abs2.(out)
 	    h1 ./= sum(h1)
         
-        E0 = zeros(ComplexF64, (N, N))
+        E0 = zeros(ComplexF32, (N, N))
 	    E0[center_pos(N), center_pos(N)] = 1
 	    E1, L2 = four_f_propagate(E0, L, 100e-3, 100e-3, NA)
 	    h2 = abs2.(E1)

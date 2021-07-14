@@ -34,8 +34,8 @@ end
     @test out ≈ jinc_psf((10, 10), 1, 1e-12)
 
     # normalized
-    @test 1 ≈ sum(jinc_psf((100, 100), 10, 2, 1; λ=1, shift=true))
-    @test 1 ≈ sum(jinc_psf((100, 100), 10, 2, 1e-20; λ=1, shift=true))
+    @test 1 ≈ sum(jinc_psf((100, 100), 10f0, 2f0, 1; λ=1f0, shift=true))
+    @test 1 ≈ sum(jinc_psf((100, 100), 10f0, 2f0, 1e-20; λ=1f0, shift=true))
 
     
     # check consistency with Rayleigh resolution
