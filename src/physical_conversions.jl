@@ -53,7 +53,7 @@ medium with refractive index `n`.
 It holds: \$ \\lambda = \\frac{n \\cdot 2 \\pi}{k} \$
 """ 
 function calc_λ(k, n=1)
-    return 2 * oftype(λ, π) * n / k
+    return 2 * oftype(k, π) * n / k
 end
 
 
