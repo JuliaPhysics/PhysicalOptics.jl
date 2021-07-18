@@ -17,10 +17,10 @@ Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [compat]
 CUDA = "3"
-ChainRulesCore = "0.9"
+ChainRulesCore = "0.9, 0.10"
 FFTW = "1.2"
 FourierTools = "0.2"
-IndexFunArrays = "0.1.7"
+IndexFunArrays = "0.2"
 Interpolations = "0.12, 0.13"
 QuadGK = "2.4.1"
 SpecialFunctions = "1, 1.1, 1.2"
