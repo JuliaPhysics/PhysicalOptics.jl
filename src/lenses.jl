@@ -43,7 +43,8 @@ end
 
 
 """
-    micro_lens_array(f, L, pitch, size=(512, 512); centered=true, λ=550e-9, n=1, aperture=true)
+    micro_lens_array(f, L, pitch, size=(512, 512); centered=true, λ=550e-9, n=1, aperture=true,
+                     dtype=ComplexF32)
 
 Return a micro lens array (MLA) with pitch size `pitch` in the field size of `L`.
 All lenslets have the same focal length `f`.
@@ -52,7 +53,7 @@ the center of the array.
 `aperture=true` indicates that there is a circular aperture cutting the field.
 Otherwise the aperture are square shaped of the same size as the `pitch`.
 """
-function micro_lens_array(f, L, pitch, size=(512, 512); centered=true, λ=550e-9, n=1, aperture=true)
+function micro_lens_array(f, L, pitch, size=(512, 512); centered=true, λ=550e-9, n=1, aperture=true, dtype=ComplexF32)
     # pitch size in indices
     mla_size = round.(Int, (size .* pitch) ./  L)
     # ÷ doesn't convert to Int tuple
@@ -74,7 +75,7 @@ function micro_lens_array(f, L, pitch, size=(512, 512); centered=true, λ=550e-9
     end
     
 
-    out = zeros(ComplexF64, size)
+    out = zeros(dtype, size)
     # put the micro lenses in the out field
     for j = 1:mla_size[2]:size[2]
         for i = 1:mla_size[1]:size[1]

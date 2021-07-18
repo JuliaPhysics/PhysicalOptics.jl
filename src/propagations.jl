@@ -167,8 +167,8 @@ function lens_propagate(arr, L, f; λ=λ0, n=1, d=nothing, fft_plan=plan_fft!(co
     aux_y = Zygote.@ignore fftpos(L_new, size(arr)[1])
     x = Zygote.@ignore to_gpu_or_cpu(arr, aux_x)
     y = Zygote.@ignore to_gpu_or_cpu(arr, aux_y)
-    c_exp = 1im * eltype(arr)(π * κ / f * (1 - d / f))
-    c = Zygote.@ignore  1 ./ (1im .* λ .* f) .* exp.(c_exp .* (x.^2 .+ y.^2))
+    c_exp = eltype(arr)(π * κ / f * (1 - d / f))
+    c = Zygote.@ignore  .- 1im ./ (λ .* f) .* cis.(c_exp .* (x.^2 .+ y.^2))
     out = out_f .* c .* eltype(out_f)(dx * dy)
     
     return out, L_new
