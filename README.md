@@ -1,3 +1,8 @@
+# ⚠️⚠️ Please look at  [WaveOpticsPropagation.jl](https://github.com/JuliaPhysics/WaveOpticsPropagation.jl). ⚠️⚠️
+Still some features missing but this package is the successor.
+
+
+
 # PhysicalOptics
 A package for simulation of physical optics. Physical optics is more general than ray optics but not as general as full electrodynamics.
 
