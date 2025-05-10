@@ -3,4 +3,7 @@ Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 PhysicalOptics = "0a60f967-c2e9-4ead-9e3e-647388820460"
 
 [compat]
-Documenter = "0.25"
+Documenter = "1"
+
+[sources]
+PhysicalOptics = {path = ".."}
