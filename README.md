@@ -1,15 +1,12 @@
-# ⚠️⚠️ Please look at  [WaveOpticsPropagation.jl](https://github.com/JuliaPhysics/WaveOpticsPropagation.jl). ⚠️⚠️
-Still some features missing but this package is the successor.
-
-
-
-# PhysicalOptics
+# PhysicalOptics (DEPRECATED)
 A package for simulation of physical optics. Physical optics is more general than ray optics but not as general as full electrodynamics.
 
-**As this package is at an early stage of development, we would be excited to welcome any new contributers!**
+> [!WARNING]
+> ⚠️⚠️ This package has been deprecated in favor of [WaveOpticsPropagation.jl](https://github.com/JuliaPhysics/WaveOpticsPropagation.jl) ⚠️⚠️
 
-| **Documentation**                       | **Build Status**                          | **Code Coverage**               |
-|:---------------------------------------:|:-----------------------------------------:|:-------------------------------:|
+
+| **Documentation**                       | **Build Status**                | **Code Coverage**               |
+|:---------------------------------------:|:-------------------------------:|:-------------------------------:|
 | [![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] | [![][CI-img]][CI-url] | [![][codecov-img]][codecov-url] |
 
 
